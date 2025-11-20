@@ -1,0 +1,89 @@
+{% extends 'inventario_app/layouts/solo_base.html' %}
+{% load static %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/login.css' %}">
+{% endblock %}
+
+{% block content %}
+  <div class="login-screen">
+    <div class="login-card" role="main" aria-labelledby="signup-heading">
+      <div style="text-align:center">
+        <img src="{% static 'img/logo.svg' %}" alt="Logo" class="login-logo" onerror="this.style.display='none'">
+      </div>
+      <h1 id="signup-heading" class="login-title">Crear cuenta</h1>
+
+      {% if messages %}
+        {% for message in messages %}
+          {% if 'success' in message.tags %}
+            <div class="alert-success">{{ message }}</div>
+          {% else %}
+            <div class="alert-danger">{{ message }}</div>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+      {% if form.non_field_errors %}
+        <div class="alert-danger">{{ form.non_field_errors }}</div>
+      {% endif %}
+
+      <form method="post" novalidate>
+        {% csrf_token %}
+
+        <div class="form-row">
+          <label class="form-label" for="id_username">Usuario</label>
+          {{ form.username }}
+          {% if form.username.errors %}
+            <div class="alert-danger">{{ form.username.errors }}</div>
+          {% endif %}
+        </div>
+
+        <div class="form-row">
+          <label class="form-label" for="id_email">Correo</label>
+          {{ form.email }}
+          {% if form.email.errors %}
+            <div class="alert-danger">{{ form.email.errors }}</div>
+          {% endif %}
+        </div>
+
+        <div class="form-row">
+          <label class="form-label" for="id_first_name">Nombre</label>
+          {{ form.first_name }}
+          {% if form.first_name.errors %}
+            <div class="alert-danger">{{ form.first_name.errors }}</div>
+          {% endif %}
+        </div>
+
+        <div class="form-row">
+          <label class="form-label" for="id_last_name">Apellido</label>
+          {{ form.last_name }}
+          {% if form.last_name.errors %}
+            <div class="alert-danger">{{ form.last_name.errors }}</div>
+          {% endif %}
+        </div>
+
+        <div class="form-row">
+          <label class="form-label" for="id_password1">Contraseña</label>
+          {{ form.password1 }}
+          {% if form.password1.errors %}
+            <div class="alert-danger">{{ form.password1.errors }}</div>
+          {% endif %}
+        </div>
+
+        <div class="form-row">
+          <label class="form-label" for="id_password2">Confirmar contraseña</label>
+          {{ form.password2 }}
+          {% if form.password2.errors %}
+            <div class="alert-danger">{{ form.password2.errors }}</div>
+          {% endif %}
+        </div>
+
+        <div style="margin-top:12px; display:flex; gap:10px;">
+          <button class="btn-primary" type="submit">Crear cuenta</button>
+          <a href="{% url 'login' %}" class="btn-secondary" role="button">Cancelar</a>
+        </div>
+      </form>
+
+      <div style="margin-top:12px; text-align:center" class="small-muted">¿Ya tienes cuenta? <a class="btn-link" href="{% url 'index' %}">Volver al inicio</a></div>
+    </div>
+  </div>
+{% endblock %}

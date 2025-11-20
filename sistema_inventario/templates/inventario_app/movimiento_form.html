@@ -1,0 +1,256 @@
+{% extends 'inventario_app/layouts/base.html' %}
+{% load static %}
+
+{% block title %}Registrar Movimiento - Sistema de Inventario{% endblock %}
+
+{% block page_title %}Registrar Movimiento{% endblock %}
+
+{% block content %}
+<!-- Form Card -->
+<div class="form-wrapper">
+    <div class="form-card" style="margin-top: 40px; margin-left: 60px;">
+        <form method="post" class="movement-form">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+            <div class="form-errors" style="background-color: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; border-radius: 8px; padding: 16px; margin-bottom: 24px;">
+                {% for error in form.non_field_errors %}
+                <p style="color: #ef4444; font-size: 14px; margin: 0;">{{ error }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="id_producto" class="form-label">
+                        <svg class="label-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                        </svg>
+                        Producto
+                    </label>
+                    {{ form.producto }}
+                    {% if form.producto.errors %}
+                    <span class="error-message">{{ form.producto.errors.0 }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_tipo" class="form-label">
+                        <svg class="label-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                        </svg>
+                        Tipo de Movimiento
+                    </label>
+                    {{ form.tipo }}
+                    {% if form.tipo.errors %}
+                    <span class="error-message">{{ form.tipo.errors.0 }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_cantidad" class="form-label">
+                        <svg class="label-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path>
+                        </svg>
+                        Cantidad
+                    </label>
+                    {{ form.cantidad }}
+                    {% if form.cantidad.errors %}
+                    <span class="error-message">{{ form.cantidad.errors.0 }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="form-group form-group-full">
+                    <label for="id_observacion" class="form-label">
+                        <svg class="label-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                        Observación
+                    </label>
+                    {{ form.observacion }}
+                    {% if form.observacion.errors %}
+                    <span class="error-message">{{ form.observacion.errors.0 }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">
+                    <svg class="btn-icon-left" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    Registrar Movimiento
+                </button>
+                <a href="{% url 'movimientos' %}" class="btn-secondary">
+                    <svg class="btn-icon-left" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                    Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .form-wrapper {
+        max-width: 900px;
+    }
+
+    .form-card {
+        background-color: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: 12px;
+        padding: 32px;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+        margin-bottom: 32px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .form-group-full {
+        grid-column: 1 / -1;
+    }
+
+    .form-label {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--color-text);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .label-icon {
+        width: 16px;
+        height: 16px;
+        color: var(--color-primary);
+    }
+
+    .movement-form input[type="text"],
+    .movement-form input[type="number"],
+    .movement-form textarea,
+    .movement-form select {
+        height: 44px;
+        padding: 0 16px;
+        background-color: var(--color-background);
+        border: 1px solid var(--color-border);
+        border-radius: 8px;
+        color: var(--color-text);
+        font-size: 14px;
+        font-family: var(--font-sans);
+        transition: all 0.2s;
+        width: 100%;
+    }
+
+    .movement-form input:focus,
+    .movement-form select:focus,
+    .movement-form textarea:focus {
+        outline: none;
+        border-color: var(--color-primary);
+        background-color: var(--color-surface);
+    }
+
+    .movement-form input::placeholder,
+    .movement-form textarea::placeholder {
+        color: var(--color-text-muted);
+    }
+
+    .movement-form select {
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23737373' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        padding-right: 40px;
+    }
+
+    .movement-form textarea {
+        min-height: 100px;
+        padding: 12px 16px;
+        resize: vertical;
+    }
+
+    .error-message {
+        color: var(--color-danger);
+        font-size: 13px;
+    }
+
+    .movement-form .errorlist {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .movement-form .errorlist li {
+        color: var(--color-danger);
+        font-size: 13px;
+        margin-top: 4px;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 12px;
+    }
+
+    .btn-primary {
+        background-color: var(--color-primary);
+        color: white;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+
+    .btn-primary:hover {
+        background-color: var(--color-primary-hover);
+    }
+
+    .btn-secondary {
+        background-color: transparent;
+        color: var(--color-text);
+        padding: 12px 24px;
+        border: 1px solid var(--color-border);
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+
+    .btn-secondary:hover {
+        background-color: var(--color-surface);
+    }
+
+    .btn-icon-left {
+        width: 16px;
+        height: 16px;
+    }
+
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}

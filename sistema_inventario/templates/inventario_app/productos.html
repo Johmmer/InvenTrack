@@ -1,0 +1,121 @@
+{% extends 'inventario_app/layouts/base.html' %}
+{% load static %}
+
+{% block title %}Productos - Sistema de Inventario{% endblock %}
+
+{% block page_title %}Productos{% endblock %}
+
+{% block content %}
+<!-- Filters and Actions -->
+<form method="get" class="toolbar" autocomplete="off" style="margin-top:16px;">
+    <div class="search-box">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.35-4.35"></path>
+        </svg>
+        <input type="text" name="search" class="search-input" placeholder="Buscar productos..." value="{{ search }}">
+    </div>
+    <div class="toolbar-actions">
+        <select class="select" name="categoria">
+            <option value="">Todas las categorías</option>
+            {% for cat in categorias %}
+                <option value="{{ cat }}" {% if cat == categoria_selected %}selected{% endif %}>{{ cat }}</option>
+            {% endfor %}
+        </select>
+        <select class="select" name="estado">
+            <option value="">Todos los estados</option>
+            <option value="En stock" {% if estado_selected == 'En stock' %}selected{% endif %}>En stock</option>
+            <option value="Stock bajo" {% if estado_selected == 'Stock bajo' %}selected{% endif %}>Stock bajo</option>
+            <option value="Sin stock" {% if estado_selected == 'Sin stock' %}selected{% endif %}>Sin stock</option>
+        </select>
+        <a href="{% url 'producto_nuevo' %}" class="btn-primary">
+            <svg class="btn-icon-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Nuevo Producto
+        </a>
+    </div>
+</form>
+
+<!-- Products Table -->
+<div class="table-card">
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th><input type="checkbox" class="checkbox"></th>
+                    <th>Código</th>
+                    <th>Nombre</th>
+                    <th>Categoría</th>
+                    <th>Stock</th>
+                    <th>Precio</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for producto in productos %}
+                <tr>
+                    <td><input type="checkbox" class="checkbox"></td>
+                    <td><span class="text-mono">{{ producto.codigo }}</span></td>
+                    <td>
+                        <div class="product-cell">
+                            <div class="product-image">{{ producto.nombre|slice:":2"|upper }}</div>
+                            <span class="product-name">{{ producto.nombre }}</span>
+                        </div>
+                    </td>
+                    <td>{{ producto.categoria }}</td>
+                    <td><span class="stock-value">{{ producto.cantidad }}</span></td>
+                    <td>${{ producto.precio_venta }}</td>
+                    {% if producto.cantidad > 20 %}
+                        <td><span class="badge badge-success">En Stock</span></td>
+                    {% elif producto.cantidad > 0 and producto.cantidad <= 20 %}
+                        <td><span class="badge badge-warning">Stock Bajo</span></td>
+                    {% else %}
+                        <td><span class="badge badge-danger">Sin Stock</span></td>
+                    {% endif %}
+                    <td>
+                        <div class="action-buttons">
+                            <a href="{% url 'editar_producto' producto.id %}" class="btn-icon-small" title="Editar">✏️</a>
+                            <a href="{% url 'eliminar_producto' producto.id %}" class="btn-icon-small" title="Eliminar" onclick="return confirm('¿Eliminar producto?');">🗑️</a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="8">No se encontraron productos.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="pagination">
+        <span class="pagination-info">
+            Mostrando {{ page_obj.start_index }}-{{ page_obj.end_index }} de {{ page_obj.paginator.count }} productos
+        </span>
+        <div class="pagination-buttons">
+            {% if page_obj.has_previous %}
+                <a href="?{% if search %}search={{ search }}&{% endif %}{% if categoria_selected %}categoria={{ categoria_selected }}&{% endif %}{% if estado_selected %}estado={{ estado_selected }}&{% endif %}page={{ page_obj.previous_page_number }}" class="btn-pagination">Anterior</a>
+            {% else %}
+                <button class="btn-pagination" disabled>Anterior</button>
+            {% endif %}
+            {% for num in page_obj.paginator.page_range %}
+                {% if num == page_obj.number %}
+                    <button class="btn-pagination active">{{ num }}</button>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <a href="?{% if search %}search={{ search }}&{% endif %}{% if categoria_selected %}categoria={{ categoria_selected }}&{% endif %}{% if estado_selected %}estado={{ estado_selected }}&{% endif %}page={{ num }}" class="btn-pagination">{{ num }}</a>
+                {% elif num == 1 or num == page_obj.paginator.num_pages %}
+                    <a href="?{% if search %}search={{ search }}&{% endif %}{% if categoria_selected %}categoria={{ categoria_selected }}&{% endif %}{% if estado_selected %}estado={{ estado_selected }}&{% endif %}page={{ num }}" class="btn-pagination">{{ num }}</a>
+                {% elif num == page_obj.number|add:'-3' or num == page_obj.number|add:'3' %}
+                    <span class="btn-pagination">...</span>
+                {% endif %}
+            {% endfor %}
+            {% if page_obj.has_next %}
+                <a href="?{% if search %}search={{ search }}&{% endif %}{% if categoria_selected %}categoria={{ categoria_selected }}&{% endif %}{% if estado_selected %}estado={{ estado_selected }}&{% endif %}page={{ page_obj.next_page_number }}" class="btn-pagination">Siguiente</a>
+            {% else %}
+                <button class="btn-pagination" disabled>Siguiente</button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends 'inventario_app/layouts/solo_base.html' %}
+{% load static %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="login-screen">
+        <div class="login-card" role="main" aria-labelledby="login-heading">
+            <div style="text-align:center">
+                <img src="{% static 'img/logo.svg' %}" alt="Logo" class="login-logo" onerror="this.style.display='none'">
+            </div>
+            <h1 id="login-heading" class="login-title">Iniciar sesión</h1>
+
+                        {% if messages %}
+                            {% for message in messages %}
+                                {% if 'success' in message.tags %}
+                                    <div class="alert-success">{{ message }}</div>
+                                {% else %}
+                                    <div class="alert-danger">{{ message }}</div>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                        {% if form.errors %}
+                                <div class="alert-danger">Revisa tus credenciales e inténtalo de nuevo.</div>
+                        {% endif %}
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+                {% if next %}
+                    <input type="hidden" name="next" value="{{ next }}">
+                {% endif %}
+
+                <div class="form-row">
+                    <label class="form-label" for="id_username">Usuario</label>
+                    <input id="id_username" name="username" type="text" class="input-dark" placeholder="Usuario" required autofocus value="{{ form.username.value|default_if_none:'' }}">
+                </div>
+
+                <div class="form-row">
+                    <label class="form-label" for="id_password">Contraseña</label>
+                    <input id="id_password" name="password" type="password" class="input-dark" placeholder="Contraseña" required>
+                </div>
+
+                <div class="form-actions">
+                    <div style="display:flex;align-items:center;gap:8px">
+                        <input id="id_remember_me" name="remember_me" type="checkbox">
+                        <label for="id_remember_me" class="small-muted">Recuérdame</label>
+                    </div>
+                    <div>
+                        <a class="btn-link" href="{% url 'password_reset' %}">¿Olvidaste tu contraseña?</a>
+                    </div>
+                </div>
+
+                                <div style="margin-top:12px; display:flex; gap:10px;">
+                                    <button class="btn-primary" type="submit">Entrar</button>
+                                    <a href="{% url 'users:signup' %}" class="btn-secondary" role="button">Crear cuenta</a>
+                                </div>
+                        </form>
+                        <div style="margin-top:12px; text-align:center" class="small-muted">¿No tienes cuenta? <a class="btn-link" href="{% url 'users:signup' %}">Regístrate</a></div>
+        </div>
+    </div>
+{% endblock %}

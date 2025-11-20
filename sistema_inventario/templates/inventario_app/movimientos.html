@@ -1,0 +1,143 @@
+{% extends 'inventario_app/layouts/base.html' %}
+{% load static %}
+
+{% block title %}Movimientos - Sistema de Inventario{% endblock %}
+
+{% block page_title %}Movimientos de Inventario{% endblock %}
+
+{% block content %}
+<!-- Stats Overview -->
+<div class="stats-grid-small">
+    <div class="stat-card-compact">
+        <span class="stat-label-compact">Entradas Hoy</span>
+        <div class="stat-value-compact">{{ numero_entradas }}</div>
+    </div>
+    <div class="stat-card-compact">
+        <span class="stat-label-compact">Salidas Hoy</span>
+        <div class="stat-value-compact">{{ numero_salidas }}</div>
+    </div>
+    <div class="stat-card-compact">
+        <span class="stat-label-compact">Ajustes</span>
+        <div class="stat-value-compact">{{ numero_ajustes }}</div>
+    </div>
+    <div class="stat-card-compact">
+        <span class="stat-label-compact">Total Movimientos</span>
+        <div class="stat-value-compact">{{ numero_movimientos }}</div>
+    </div>
+</div>
+
+<!-- Filters and Actions -->
+<form method="get" class="toolbar" autocomplete="off">
+    <div class="search-box">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.35-4.35"></path>
+        </svg>
+        <input type="text" name="search" class="search-input" placeholder="Buscar movimientos..." value="{{ search }}">
+    </div>
+    <div class="toolbar-actions">
+        <select class="select" name="tipo">
+            <option value="">Todos los tipos</option>
+            <option value="Entrada" {% if tipo_selected == 'Entrada' %}selected{% endif %}>Entrada</option>
+            <option value="Salida" {% if tipo_selected == 'Salida' %}selected{% endif %}>Salida</option>
+            <option value="Ajuste" {% if tipo_selected == 'Ajuste' %}selected{% endif %}>Ajuste</option>
+        </select>
+        <select class="select" name="fecha">
+            <option value="">Última semana</option>
+            <option value="Hoy" {% if fecha_selected == 'Hoy' %}selected{% endif %}>Hoy</option>
+            <option value="Últimos 7 días" {% if fecha_selected == 'Últimos 7 días' %}selected{% endif %}>Últimos 7 días</option>
+            <option value="Últimos 30 días" {% if fecha_selected == 'Últimos 30 días' %}selected{% endif %}>Últimos 30 días</option>
+            <option value="Este mes" {% if fecha_selected == 'Este mes' %}selected{% endif %}>Este mes</option>
+        </select>
+        <button type="submit" class="btn-secondary">Filtrar</button>
+        <a href="{% url 'exportar_movimientos' %}" class="btn-secondary">Exportar</a>
+        <a href="{% url 'registrar_movimiento' %}" class="btn-primary">Registrar Movimiento</a>
+    </div>
+</form>
+
+<!-- Movements Table -->
+<div class="table-card">
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Fecha y Hora</th>
+                    <th>Producto</th>
+                    <th>Tipo</th>
+                    <th>Cantidad</th>
+                    <th>Stock Anterior</th>
+                    <th>Stock Nuevo</th>
+                    <th>Usuario</th>
+                    <th>Observaciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for mov in movimientos %}
+                <tr>
+                    <td><span class="text-mono">MOV-{{ mov.id }}</span></td>
+                    <td>{{ mov.fecha|date:"d/m/Y H:i" }}</td>
+                    <td>
+                        <div class="product-cell-compact">
+                            <span class="product-name">{{ mov.producto.nombre }}</span>
+                            <span class="product-code">{{ mov.producto.codigo }}</span>
+                        </div>
+                    </td>
+                    <td>
+                        {% if mov.tipo == 'E' %}
+                            <span class="badge badge-success">Entrada</span>
+                        {% elif mov.tipo == 'S' %}
+                            <span class="badge badge-danger">Salida</span>
+                        {% else %}
+                            <span class="badge badge-warning">Ajuste</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if mov.tipo == 'E' %}
+                            <span class="quantity-positive">+{{ mov.cantidad }}</span>
+                        {% else %}
+                            <span class="quantity-negative">-{{ mov.cantidad }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ mov.stock_anterior }}</td>
+                    <td>{{ mov.stock_nuevo }}</td>
+                    <td>{{ mov.usuario.get_full_name|default:mov.usuario.username }}</td>
+                    <td>{{ mov.observacion }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="9">No se encontraron movimientos.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="pagination">
+        <span class="pagination-info">
+            Mostrando {{ page_obj.start_index }}-{{ page_obj.end_index }} de {{ page_obj.paginator.count }} movimientos
+        </span>
+        <div class="pagination-buttons">
+            {% if page_obj.has_previous %}
+                <a href="?{% if search %}search={{ search }}&{% endif %}{% if tipo_selected %}tipo={{ tipo_selected }}&{% endif %}{% if fecha_selected %}fecha={{ fecha_selected }}&{% endif %}page={{ page_obj.previous_page_number }}" class="btn-pagination">Anterior</a>
+            {% else %}
+                <button class="btn-pagination" disabled>Anterior</button>
+            {% endif %}
+            {% for num in page_obj.paginator.page_range %}
+                {% if num == page_obj.number %}
+                    <button class="btn-pagination active">{{ num }}</button>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <a href="?{% if search %}search={{ search }}&{% endif %}{% if tipo_selected %}tipo={{ tipo_selected }}&{% endif %}{% if fecha_selected %}fecha={{ fecha_selected }}&{% endif %}page={{ num }}" class="btn-pagination">{{ num }}</a>
+                {% elif num == 1 or num == page_obj.paginator.num_pages %}
+                    <a href="?{% if search %}search={{ search }}&{% endif %}{% if tipo_selected %}tipo={{ tipo_selected }}&{% endif %}{% if fecha_selected %}fecha={{ fecha_selected }}&{% endif %}page={{ num }}" class="btn-pagination">{{ num }}</a>
+                {% elif num == page_obj.number|add:'-3' or num == page_obj.number|add:'3' %}
+                    <span class="btn-pagination">...</span>
+                {% endif %}
+            {% endfor %}
+            {% if page_obj.has_next %}
+                <a href="?{% if search %}search={{ search }}&{% endif %}{% if tipo_selected %}tipo={{ tipo_selected }}&{% endif %}{% if fecha_selected %}fecha={{ fecha_selected }}&{% endif %}page={{ page_obj.next_page_number }}" class="btn-pagination">Siguiente</a>
+            {% else %}
+                <button class="btn-pagination" disabled>Siguiente</button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

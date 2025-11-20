@@ -1,0 +1,213 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuevo Producto - Sistema de Inventario</title>
+    <link rel="stylesheet" href="{% static '/css/inventario_app/form.css' %}">
+</head>
+<body>
+    <div class="layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="logo">Inventario</h1>
+            </div>
+            <nav class="nav">
+                <a href="index.html" class="nav-item">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                    </svg>
+                    Dashboard
+                </a>
+                <a href="productos.html" class="nav-item active">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                    </svg>
+                    Productos
+                </a>
+                <a href="movimientos.html" class="nav-item">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                    </svg>
+                    Movimientos
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-content">
+                    <h2 class="page-title">Nuevo Producto</h2>
+                    <div class="header-actions">
+                        <button class="btn-icon">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                            </svg>
+                        </button>
+                        <div class="user-avatar">AD</div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Form Card -->
+            <div class="form-wrapper">
+                <div class="form-card">
+                    <form method="post" class="product-form">
+                        {% csrf_token %}
+                        
+                        <!-- Added error display for non-field errors -->
+                        {% if form.non_field_errors %}
+                        <div class="form-errors" style="background-color: var(--color-danger-bg); border: 1px solid var(--color-danger); border-radius: 8px; padding: 16px; margin-bottom: 24px;">
+                            {% for error in form.non_field_errors %}
+                            <p style="color: var(--color-danger); font-size: 14px; margin: 0;">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        
+                        <div class="form-grid">
+                            <!-- Replaced static inputs with Django form fields -->
+                            <div class="form-group">
+                                <label for="id_nombre" class="form-label">Nombre del Producto</label>
+                                {{ form.nombre }}
+                                {% if form.nombre.errors %}
+                                <span style="color: var(--color-danger); font-size: 13px;">{{ form.nombre.errors.0 }}</span>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="id_codigo" class="form-label">Código</label>
+                                {{ form.codigo }}
+                                {% if form.codigo.errors %}
+                                <span style="color: var(--color-danger); font-size: 13px;">{{ form.codigo.errors.0 }}</span>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="id_categoria" class="form-label">Categoría</label>
+                                {{ form.categoria }}
+                                {% if form.categoria.errors %}
+                                <span style="color: var(--color-danger); font-size: 13px;">{{ form.categoria.errors.0 }}</span>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="id_precio_compra" class="form-label">Precio de Compra</label>
+                                <div class="input-with-prefix">
+                                    <span class="input-prefix">$</span>
+                                    {{ form.precio_compra }}
+                                </div>
+                                {% if form.precio_compra.errors %}
+                                <span style="color: var(--color-danger); font-size: 13px;">{{ form.precio_compra.errors.0 }}</span>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="id_precio_venta" class="form-label">Precio de Venta</label>
+                                <div class="input-with-prefix">
+                                    <span class="input-prefix">$</span>
+                                    {{ form.precio_venta }}
+                                </div>
+                                {% if form.precio_venta.errors %}
+                                <span style="color: var(--color-danger); font-size: 13px;">{{ form.precio_venta.errors.0 }}</span>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="id_cantidad" class="form-label">Cantidad en Stock</label>
+                                {{ form.cantidad }}
+                                {% if form.cantidad.errors %}
+                                <span style="color: var(--color-danger); font-size: 13px;">{{ form.cantidad.errors.0 }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Updated form actions with Django URL tag -->
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">
+                                <svg class="btn-icon-left" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                Guardar Producto
+                            </button>
+                            <a href="{% url 'productos' %}" class="btn-secondary">
+                                <svg class="btn-icon-left" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                                Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Added inline styles to match Django form widgets with design system -->
+    <style>
+        .product-form input[type="text"],
+        .product-form input[type="number"],
+        .product-form input[type="email"],
+        .product-form textarea,
+        .product-form select {
+            height: 44px;
+            padding: 0 16px;
+            background-color: var(--color-background);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            color: var(--color-text);
+            font-size: 14px;
+            font-family: var(--font-sans);
+            transition: all 0.2s;
+            width: 100%;
+        }
+        
+        .product-form input.with-prefix {
+            padding-left: 36px;
+        }
+        
+        .product-form input:focus,
+        .product-form select:focus,
+        .product-form textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            background-color: var(--color-surface);
+        }
+        
+        .product-form input::placeholder,
+        .product-form textarea::placeholder {
+            color: var(--color-text-muted);
+        }
+        
+        .product-form select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23737373' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 40px;
+        }
+        
+        .product-form textarea {
+            min-height: 100px;
+            padding: 12px 16px;
+            resize: vertical;
+        }
+        
+        .product-form .errorlist {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .product-form .errorlist li {
+            color: var(--color-danger);
+            font-size: 13px;
+            margin-top: 4px;
+        }
+    </style>
+</body>
+</html>

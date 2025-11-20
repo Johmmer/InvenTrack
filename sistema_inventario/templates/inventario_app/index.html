@@ -1,0 +1,239 @@
+{% extends 'inventario_app/layouts/base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - Sistema de Inventario{% endblock %}
+
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- Stats Cards -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-header">
+            <span class="stat-label">Total Productos</span>
+            <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+            </svg>
+        </div>
+        <div class="stat-value">{{ total_productos|default:0 }}</div>
+        <div class="stat-change positive">Productos activos</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-header">
+            <span class="stat-label">Valor Inventario</span>
+            <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="1" x2="12" y2="23"></line>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+            </svg>
+        </div>
+        <div class="stat-value">${{ valor_inventario|floatformat:2|default:0 }}</div>
+        <div class="stat-change positive">Valor total</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-header">
+            <span class="stat-label">Stock Bajo</span>
+            <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+        </div>
+        <div class="stat-value">{{ stock_bajo|default:0 }}</div>
+        <div class="stat-change negative">Productos</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-header">
+            <span class="stat-label">Movimientos Hoy</span>
+            <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+            </svg>
+        </div>
+        <div class="stat-value">{{ movimientos_hoy|default:0 }}</div>
+        <div class="stat-change positive">Hoy</div>
+    </div>
+</div>
+
+<!-- Charts Section -->
+<div class="charts-grid">
+    <div class="chart-card">
+        <div class="card-header">
+            <h3 class="card-title">Movimientos del Mes</h3>
+            <select class="select-small">
+                <option>Últimos 30 días</option>
+            </select>
+        </div>
+        <div class="chart-container">
+            <canvas id="movementsChart"></canvas>
+        </div>
+    </div>
+
+    <div class="chart-card">
+        <div class="card-header">
+            <h3 class="card-title">Productos por Categoría</h3>
+        </div>
+        <div class="chart-container">
+            <canvas id="categoryChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Movements Table -->
+<div class="table-card">
+    <div class="card-header">
+        <h3 class="card-title">Movimientos Recientes</h3>
+        <a href="{% url 'movimientos' %}" class="btn-link">Ver todos</a>
+    </div>
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Producto</th>
+                    <th>Tipo</th>
+                    <th>Cantidad</th>
+                    <th>Usuario</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for movimiento in movimientos_recientes %}
+                <tr>
+                    <td>{{ movimiento.fecha|date:"d/m/Y H:i" }}</td>
+                    <td>{{ movimiento.producto.nombre }}</td>
+                    <td>
+                        {% if movimiento.tipo == 'E' %}
+                            <span class="badge badge-success">Entrada</span>
+                        {% elif movimiento.tipo == 'S' %}
+                            <span class="badge badge-danger">Salida</span>
+                        {% else %}
+                            <span class="badge badge-warning">Ajuste</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if movimiento.tipo == 'E' %}
+                            +{{ movimiento.cantidad }}
+                        {% else %}
+                            -{{ movimiento.cantidad }}
+                        {% endif %}
+                    </td>
+                    <td>{{ movimiento.usuario.get_full_name|default:movimiento.usuario.username }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" style="text-align: center;">No hay movimientos registrados</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+    // Datos desde Django
+    const fechas = {{ fechas|safe }};
+    const entradas = {{ entradas|safe }};
+    const salidas = {{ salidas|safe }};
+    const categorias = {{ categorias|safe }};
+    const cantidadesCat = {{ cantidades_cat|safe }};
+
+    // Gráfico de Movimientos del Mes
+    const ctxMovements = document.getElementById('movementsChart').getContext('2d');
+    new Chart(ctxMovements, {
+        type: 'line',
+        data: {
+            labels: fechas,
+            datasets: [
+                {
+                    label: 'Entradas',
+                    data: entradas,
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true
+                },
+                {
+                    label: 'Salidas',
+                    data: salidas,
+                    borderColor: '#ef4444',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                }
+            }
+        }
+    });
+
+    // Gráfico de Productos por Categoría
+    const ctxCategory = document.getElementById('categoryChart').getContext('2d');
+    new Chart(ctxCategory, {
+        type: 'doughnut',
+        data: {
+            labels: categorias,
+            datasets: [{
+                data: cantidadesCat,
+                backgroundColor: [
+                    '#3b82f6',
+                    '#10b981',
+                    '#f59e0b',
+                    '#ef4444',
+                    '#8b5cf6',
+                    '#ec4899',
+                    '#14b8a6',
+                    '#f97316'
+                ],
+                borderWidth: 2,
+                borderColor: '#ffffff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'right',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.parsed || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return `${label}: ${value} (${percentage}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+{% endblock %}

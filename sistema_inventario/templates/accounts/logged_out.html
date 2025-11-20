@@ -1,0 +1,11 @@
+{% extends 'inventario_app/layouts/base.html' %}
+
+{% block content %}
+<div class="container mt-5" style="max-width: 400px;">
+    <h2 class="mb-4 text-center">Sesión cerrada</h2>
+    <div class="alert alert-info text-center">
+        Has cerrado sesión correctamente.<br>
+        <a href="/accounts/login/" class="btn btn-link mt-3">Iniciar sesión de nuevo</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends 'inventario_app/layouts/base.html' %}
+{% block title %}Eliminar Producto - Sistema de Inventario{% endblock %}
+{% block page_title %}Eliminar Producto{% endblock %}
+{% block content %}
+<div class="form-card">
+    <h3>¿Estás seguro de que deseas eliminar el producto?</h3>
+    <p><strong>{{ producto.nombre }}</strong> ({{ producto.codigo }})</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn-primary">Sí, eliminar</button>
+        <a href="{% url 'productos' %}" class="btn-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock %}
