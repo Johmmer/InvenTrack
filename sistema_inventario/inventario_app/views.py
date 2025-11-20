@@ -225,26 +225,21 @@ def movimientos(request):
     paginator = Paginator(qs, 10)
     movimientos_page = paginator.get_page(page)
     
-    #n° entradas
-    for mov in movimientos_page:
-        mov.numero_entradas = MovimientoInventario.objects.filter(producto=mov.producto, tipo='E').count()
-        
-    #n° salidas
-    for mov in movimientos_page:
-        mov.numero_salidas = MovimientoInventario.objects.filter(producto=mov.producto, tipo='S').count()
+    # Calcular estadísticas totales (no por cada movimiento individual)
+    total_entradas = MovimientoInventario.objects.filter(tipo='E').count()
+    total_salidas = MovimientoInventario.objects.filter(tipo='S').count()
+    total_ajustes = MovimientoInventario.objects.filter(observacion__icontains='Ajuste').count()
+    total_movimientos = MovimientoInventario.objects.count()
     
-    #n° ajustes
+    # Agregar información adicional a cada movimiento
     for mov in movimientos_page:
-        mov.numero_ajustes = MovimientoInventario.objects.filter(producto=mov.producto, observacion__icontains='Ajuste').count()
-        
-    #n° movimientos total
-    for mov in movimientos_page:
-        mov.numero_movimientos = MovimientoInventario.objects.all().filter(producto=mov.producto).count()
-        
-    #stock anterior y nuevo
-    for mov in movimientos_page:
-        mov.stock_anterior = mov.producto.cantidad
-        mov.stock_nuevo = mov.stock_anterior + mov.cantidad if mov.tipo == 'E' else mov.stock_anterior - mov.cantidad
+        # Stock anterior (el stock actual menos el cambio de este movimiento)
+        if mov.tipo == 'E':
+            mov.stock_anterior = mov.producto.cantidad - mov.cantidad
+            mov.stock_nuevo = mov.producto.cantidad
+        else:  # Salida
+            mov.stock_anterior = mov.producto.cantidad + mov.cantidad
+            mov.stock_nuevo = mov.producto.cantidad
 
     return render(request, 'inventario_app/movimientos.html', {
         'movimientos': movimientos_page,
@@ -253,10 +248,8 @@ def movimientos(request):
         'fecha_selected': fecha,
         'paginator': paginator,
         'page_obj': movimientos_page,
-        'numero_entradas': mov.numero_entradas,
-        'numero_salidas': mov.numero_salidas,
-        'numero_ajustes': mov.numero_ajustes,
-        'numero_movimientos': mov.numero_movimientos,
-        'stock_anterior': mov.stock_anterior,
-        'stock_nuevo': mov.stock_nuevo,
+        'numero_entradas': total_entradas,
+        'numero_salidas': total_salidas,
+        'numero_ajustes': total_ajustes,
+        'numero_movimientos': total_movimientos,
     })
