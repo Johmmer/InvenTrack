@@ -23,9 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-z@3h^#j@-_t2ct541mq91pqq7xs4&^=vr=ce_0(i*@%s(fg59t'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['Johmmerreyesm.pythonanywhere.com', 'johmmerreyesm.pythonanywhere.com']
 
 
 # Application definition
@@ -121,10 +121,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = 'home/johmmerreyesm/Inventrack/sistema_inventario/static'
 
 STATICFILES_DIRS = [
-    BASE_DIR / "static",
-    "/var/www/static/",
+    BASE_DIR / "static"
 ]
 
 # Default primary key field type
