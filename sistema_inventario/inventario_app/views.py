@@ -1,3 +1,4 @@
+from django.db.models.functions import TruncDate
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 import csv
@@ -105,13 +106,13 @@ def index(request):
     hace_30_dias = timezone.now() - timedelta(days=30)
     movimientos_mes = MovimientoInventario.objects.filter(
         fecha__gte=hace_30_dias
-    ).extra(
-        select={'dia': 'DATE(fecha)'}
+    ).annotate(
+        dia=TruncDate('fecha')
     ).values('dia').annotate(
         entradas=Count('id', filter=models.Q(tipo='E')),
         salidas=Count('id', filter=models.Q(tipo='S'))
     ).order_by('dia')
-    
+
     # Formatear datos para Chart.js
     fechas = [mov['dia'].strftime('%d/%m') for mov in movimientos_mes]
     entradas = [mov['entradas'] for mov in movimientos_mes]
