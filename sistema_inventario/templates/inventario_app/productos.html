@@ -68,9 +68,9 @@
                     <td>{{ producto.categoria }}</td>
                     <td><span class="stock-value">{{ producto.cantidad }}</span></td>
                     <td>${{ producto.precio_venta }}</td>
-                    {% if producto.cantidad > 20 %}
+                    {% if producto.cantidad >= 10 %}
                         <td><span class="badge badge-success">En Stock</span></td>
-                    {% elif producto.cantidad > 0 and producto.cantidad <= 20 %}
+                    {% elif producto.cantidad > 0 and producto.cantidad < 10 %}
                         <td><span class="badge badge-warning">Stock Bajo</span></td>
                     {% else %}
                         <td><span class="badge badge-danger">Sin Stock</span></td>
